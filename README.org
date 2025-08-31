@@ -1,0 +1,34 @@
+#+TITLE: BoldBeaver - Mobile Stopwatch
+#+AUTHOR: BoldBeaver Team
+#+DATE: 2025
+
+* Overview
+
+BoldBeaver is a bold, large-text stopwatch designed specifically for mobile devices. Features ultra-readable display with touch-optimized controls.
+
+* Quick Start
+
+#+BEGIN_SRC bash
+# Setup and run
+just setup
+just dev
+#+END_SRC
+
+* Command Line Interface
+
+#+BEGIN_SRC bash
+# Available commands for project management
+just setup          # Install dependencies and build
+just dev            # Start development server
+just build          # Build for production
+just test           # Run test suite
+just teardown       # Clean artifacts
+#+END_SRC
+
+* Features
+
+- Ultra-bold, large text optimized for mobile viewing
+- Touch-friendly button controls
+- Precise millisecond timing
+- Responsive design for all mobile screen sizes
+- Clean, minimal interface
