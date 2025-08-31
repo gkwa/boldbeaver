@@ -10,6 +10,8 @@ export class StopwatchApp {
   private durationFormatter: DurationFormatter
   private timestampFormatter: TimestampFormatter
   private ui: StopwatchUI
+  private isKeepAwakeEnabled: boolean = false
+  private wakeLock: WakeLockSentinel | null = null
 
   constructor() {
     this.stopwatch = new Stopwatch()
@@ -22,8 +24,13 @@ export class StopwatchApp {
   public init(): void {
     this.ui.render()
     this.setupEventHandlers()
+    this.setupVisibilityChangeHandler()
     this.startUpdateLoop()
     this.updateAllDisplays()
+
+    if (!("wakeLock" in navigator)) {
+      this.ui.disableKeepAwakeButton()
+    }
   }
 
   private setupEventHandlers(): void {
@@ -39,6 +46,55 @@ export class StopwatchApp {
       this.stopwatch.reset()
       this.updateAllDisplays()
     })
+
+    this.ui.onKeepAwake(() => {
+      this.toggleKeepAwake()
+    })
+  }
+
+  private setupVisibilityChangeHandler(): void {
+    document.addEventListener("visibilitychange", async () => {
+      if (
+        this.isKeepAwakeEnabled &&
+        this.wakeLock === null &&
+        document.visibilityState === "visible"
+      ) {
+        await this.requestWakeLock()
+      }
+    })
+  }
+
+  private async toggleKeepAwake(): Promise<void> {
+    this.isKeepAwakeEnabled = !this.isKeepAwakeEnabled
+    if (this.isKeepAwakeEnabled) {
+      await this.requestWakeLock()
+      this.ui.updateKeepAwakeButton(true)
+    } else {
+      await this.releaseWakeLock()
+      this.ui.updateKeepAwakeButton(false)
+    }
+  }
+
+  private async requestWakeLock(): Promise<void> {
+    if (this.wakeLock) return
+    try {
+      this.wakeLock = await navigator.wakeLock.request("screen")
+      this.wakeLock.addEventListener("release", () => {
+        this.wakeLock = null
+      })
+    } catch (err) {
+      console.error("Failed to acquire wake lock:", err)
+      this.isKeepAwakeEnabled = false
+      this.ui.updateKeepAwakeButton(false)
+      // Optionally alert user
+    }
+  }
+
+  private async releaseWakeLock(): Promise<void> {
+    if (this.wakeLock) {
+      await this.wakeLock.release()
+      this.wakeLock = null
+    }
   }
 
   private startUpdateLoop(): void {

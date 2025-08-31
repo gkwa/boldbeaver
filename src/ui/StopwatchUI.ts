@@ -4,9 +4,10 @@ export class StopwatchUI {
   private timeDisplay: HTMLElement | null = null
   private stopwatchDurationDisplay: HTMLElement | null = null
   private sessionDurationDisplay: HTMLElement | null = null
-  private startBtn: HTMLElement | null = null
-  private stopBtn: HTMLElement | null = null
-  private resetBtn: HTMLElement | null = null
+  private startBtn: HTMLButtonElement | null = null
+  private stopBtn: HTMLButtonElement | null = null
+  private resetBtn: HTMLButtonElement | null = null
+  private keepAwakeBtn: HTMLButtonElement | null = null
 
   public render(): void {
     const app = document.getElementById("app")
@@ -22,6 +23,7 @@ export class StopwatchUI {
         <button class="btn btn-start">START</button>
         <button class="btn btn-stop">STOP</button>
         <button class="btn btn-reset">RESET</button>
+        <button class="btn btn-keep-awake">Keep Awake</button>
       </div>
     `
 
@@ -165,6 +167,21 @@ export class StopwatchUI {
     }
   }
 
+  public updateKeepAwakeButton(enabled: boolean): void {
+    if (this.keepAwakeBtn) {
+      this.keepAwakeBtn.textContent = enabled ? "Allow Sleep" : "Keep Awake"
+      this.keepAwakeBtn.classList.toggle("active", enabled)
+    }
+  }
+
+  public disableKeepAwakeButton(): void {
+    if (this.keepAwakeBtn) {
+      this.keepAwakeBtn.disabled = true
+      this.keepAwakeBtn.textContent = "Keep Awake (Unsupported)"
+      this.keepAwakeBtn.style.background = "#6b7280"
+    }
+  }
+
   public onStart(callback: () => void): void {
     if (this.startBtn) {
       this.startBtn.addEventListener("click", callback)
@@ -183,6 +200,11 @@ export class StopwatchUI {
     }
   }
 
+  public onKeepAwake(callback: () => void): void {
+    if (this.keepAwakeBtn) {
+      this.keepAwakeBtn.addEventListener("click", callback)
+    }
+  }
   private cacheElements(): void {
     this.timeDisplay = document.querySelector(".time-display")
     this.stopwatchDurationDisplay = document.querySelector(".stopwatch-duration-display")
@@ -192,5 +214,6 @@ export class StopwatchUI {
     this.startBtn = document.querySelector(".btn-start")
     this.stopBtn = document.querySelector(".btn-stop")
     this.resetBtn = document.querySelector(".btn-reset")
+    this.keepAwakeBtn = document.querySelector(".btn-keep-awake")
   }
 }
