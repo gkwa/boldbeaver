@@ -14,17 +14,17 @@ export class StopwatchUI {
     if (!app) return
 
     app.innerHTML = `
-      <div class="current-timestamp-display">--</div>
-      <div class="start-timestamp-display" style="display: none;">Started: --</div>
-      <div class="legend-display">🟢 Active • 🟡 Session</div>
-      <div class="stopwatch-duration-display">0s</div>
-      <div class="session-duration-display" style="display: none;">0s</div>
       <div class="controls">
         <button class="btn btn-start">START</button>
         <button class="btn btn-stop">STOP</button>
         <button class="btn btn-reset">RESET</button>
         <button class="btn btn-keep-awake">Keep Awake</button>
       </div>
+      <div class="current-timestamp-display">--</div>
+      <div class="start-timestamp-display" style="display: none;">Started: --</div>
+      <div class="legend-display">🟢 Active • 🟡 Session</div>
+      <div class="stopwatch-duration-display">0s</div>
+      <div class="session-duration-display" style="display: none;">0s</div>
     `
 
     this.cacheElements()
@@ -49,13 +49,13 @@ export class StopwatchUI {
     const showingStartTime = this.startTimestampDisplay!.style.display !== "none"
     const showingSessionTime = this.sessionDurationDisplay!.style.display !== "none"
 
-    const controlsSpace = viewportHeight * 0.18
+    const controlsSpace = viewportHeight * 0.15
     const availableHeight = viewportHeight - controlsSpace
 
     // Calculate space allocation
-    const currentTimestampHeight = availableHeight * 0.08
-    const startTimestampHeight = showingStartTime ? availableHeight * 0.05 : 0
-    const legendHeight = availableHeight * 0.06
+    const currentTimestampHeight = availableHeight * 0.1
+    const startTimestampHeight = showingStartTime ? availableHeight * 0.06 : 0
+    const legendHeight = availableHeight * 0.08
 
     let timerSpace = availableHeight - currentTimestampHeight - startTimestampHeight - legendHeight
 
