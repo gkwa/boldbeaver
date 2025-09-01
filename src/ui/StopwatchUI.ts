@@ -15,8 +15,8 @@ export class StopwatchUI {
     app.innerHTML = `
       <div class="controls">
         <button class="btn btn-toggle btn-start">START</button>
-        <button class="btn btn-reset">RESET</button>
         <button class="btn btn-keep-awake">Keep Awake</button>
+        <button class="btn btn-reset">RESET</button>
       </div>
       <div class="current-timestamp-display">--</div>
       <div class="start-timestamp-display" style="display: none;">Started: --</div>
