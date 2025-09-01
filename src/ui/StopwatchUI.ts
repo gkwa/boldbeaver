@@ -1,9 +1,9 @@
 export class StopwatchUI {
   private currentTimestampDisplay: HTMLElement | null = null
   private startTimestampDisplay: HTMLElement | null = null
-  private timeDisplay: HTMLElement | null = null
   private stopwatchDurationDisplay: HTMLElement | null = null
   private sessionDurationDisplay: HTMLElement | null = null
+  private legendDisplay: HTMLElement | null = null
   private startBtn: HTMLButtonElement | null = null
   private stopBtn: HTMLButtonElement | null = null
   private resetBtn: HTMLButtonElement | null = null
@@ -16,9 +16,9 @@ export class StopwatchUI {
     app.innerHTML = `
       <div class="current-timestamp-display">--</div>
       <div class="start-timestamp-display" style="display: none;">Started: --</div>
-      <div class="time-display">00:00</div>
-      <div class="stopwatch-duration-display">Active: 0s</div>
-      <div class="session-duration-display" style="display: none;">Session: 0s</div>
+      <div class="legend-display">🟢 Active • 🟡 Session</div>
+      <div class="stopwatch-duration-display">0s</div>
+      <div class="session-duration-display" style="display: none;">0s</div>
       <div class="controls">
         <button class="btn btn-start">START</button>
         <button class="btn btn-stop">STOP</button>
@@ -35,11 +35,11 @@ export class StopwatchUI {
 
   private setupDynamicSizing(): void {
     const elements = [
-      this.timeDisplay,
       this.stopwatchDurationDisplay,
       this.sessionDurationDisplay,
       this.currentTimestampDisplay,
       this.startTimestampDisplay,
+      this.legendDisplay,
     ]
     if (elements.some((el) => !el)) return
 
@@ -52,50 +52,60 @@ export class StopwatchUI {
     const controlsSpace = viewportHeight * 0.18
     const availableHeight = viewportHeight - controlsSpace
 
-    let elementCount = 3 // timer + stopwatch duration + current timestamp
-    if (showingStartTime) elementCount++
-    if (showingSessionTime) elementCount++
-
-    // Distribute space proportionally
-    const timeHeight = availableHeight * 0.4
-    const stopwatchHeight = availableHeight * 0.25
-    const sessionHeight = showingSessionTime ? availableHeight * 0.2 : 0
-    const currentTimestampHeight = availableHeight * 0.1
+    // Calculate space allocation
+    const currentTimestampHeight = availableHeight * 0.08
     const startTimestampHeight = showingStartTime ? availableHeight * 0.05 : 0
+    const legendHeight = availableHeight * 0.06
 
-    // Calculate and apply font sizes
-    const timeFontSize = this.fitTextToWidth(
-      this.timeDisplay!,
-      Math.max(timeHeight, 50),
-      viewportWidth,
-      "9999:99",
-    )
-    const stopwatchFontSize = this.fitTextToWidth(
-      this.stopwatchDurationDisplay!,
-      Math.max(stopwatchHeight, 20),
-      viewportWidth,
-      "Active: 99d23h59m (999:59:59)",
-    )
+    let timerSpace = availableHeight - currentTimestampHeight - startTimestampHeight - legendHeight
+
+    if (showingSessionTime) {
+      // Split timer space between active and session
+      const activeHeight = timerSpace * 0.5
+      const sessionHeight = timerSpace * 0.5
+
+      const activeFontSize = this.fitTextToWidth(
+        this.stopwatchDurationDisplay!,
+        Math.max(activeHeight, 30),
+        viewportWidth,
+        "99d23h59m",
+      )
+      const sessionFontSize = this.fitTextToWidth(
+        this.sessionDurationDisplay!,
+        Math.max(sessionHeight, 30),
+        viewportWidth,
+        "99d23h59m",
+      )
+
+      this.stopwatchDurationDisplay!.style.fontSize = `${activeFontSize}px`
+      this.sessionDurationDisplay!.style.fontSize = `${sessionFontSize}px`
+    } else {
+      // Use full timer space for active only
+      const activeFontSize = this.fitTextToWidth(
+        this.stopwatchDurationDisplay!,
+        Math.max(timerSpace, 50),
+        viewportWidth,
+        "99d23h59m",
+      )
+      this.stopwatchDurationDisplay!.style.fontSize = `${activeFontSize}px`
+    }
+
+    // Set other element sizes
     const currentTimestampFontSize = this.fitTextToWidth(
       this.currentTimestampDisplay!,
       Math.max(currentTimestampHeight, 12),
       viewportWidth,
       "Sun, Aug 31, 2025 08:30:28 (08:30:28 AM)",
     )
-
-    this.timeDisplay!.style.fontSize = `${timeFontSize}px`
-    this.stopwatchDurationDisplay!.style.fontSize = `${stopwatchFontSize}px`
     this.currentTimestampDisplay!.style.fontSize = `${currentTimestampFontSize}px`
 
-    if (showingSessionTime) {
-      const sessionFontSize = this.fitTextToWidth(
-        this.sessionDurationDisplay!,
-        Math.max(sessionHeight, 18),
-        viewportWidth,
-        "Session: 99d23h59m (999:59:59)",
-      )
-      this.sessionDurationDisplay!.style.fontSize = `${sessionFontSize}px`
-    }
+    const legendFontSize = this.fitTextToWidth(
+      this.legendDisplay!,
+      Math.max(legendHeight, 10),
+      viewportWidth,
+      "🟢 Active • 🟡 Session",
+    )
+    this.legendDisplay!.style.fontSize = `${legendFontSize}px`
 
     if (showingStartTime) {
       const startTimestampFontSize = this.fitTextToWidth(
@@ -133,21 +143,15 @@ export class StopwatchUI {
     return fontSize
   }
 
-  public updateDisplay(time: string): void {
-    if (this.timeDisplay) {
-      this.timeDisplay.textContent = time
-    }
-  }
-
   public updateStopwatchDuration(duration: string): void {
     if (this.stopwatchDurationDisplay) {
-      this.stopwatchDurationDisplay.textContent = `Active: ${duration}`
+      this.stopwatchDurationDisplay.textContent = duration
     }
   }
 
   public updateSessionDuration(duration: string, show: boolean): void {
     if (this.sessionDurationDisplay) {
-      this.sessionDurationDisplay.textContent = `Session: ${duration}`
+      this.sessionDurationDisplay.textContent = duration
       this.sessionDurationDisplay.style.display = show ? "flex" : "none"
       this.setupDynamicSizing()
     }
@@ -206,11 +210,11 @@ export class StopwatchUI {
     }
   }
   private cacheElements(): void {
-    this.timeDisplay = document.querySelector(".time-display")
     this.stopwatchDurationDisplay = document.querySelector(".stopwatch-duration-display")
     this.sessionDurationDisplay = document.querySelector(".session-duration-display")
     this.currentTimestampDisplay = document.querySelector(".current-timestamp-display")
     this.startTimestampDisplay = document.querySelector(".start-timestamp-display")
+    this.legendDisplay = document.querySelector(".legend-display")
     this.startBtn = document.querySelector(".btn-start")
     this.stopBtn = document.querySelector(".btn-stop")
     this.resetBtn = document.querySelector(".btn-reset")

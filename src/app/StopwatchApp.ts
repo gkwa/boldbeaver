@@ -1,12 +1,10 @@
 import { Stopwatch } from "../domain/Stopwatch"
-import { TimeFormatter } from "../services/TimeFormatter"
 import { DurationFormatter } from "../services/DurationFormatter"
 import { TimestampFormatter } from "../services/TimestampFormatter"
 import { StopwatchUI } from "../ui/StopwatchUI"
 
 export class StopwatchApp {
   private stopwatch: Stopwatch
-  private timeFormatter: TimeFormatter
   private durationFormatter: DurationFormatter
   private timestampFormatter: TimestampFormatter
   private ui: StopwatchUI
@@ -15,7 +13,6 @@ export class StopwatchApp {
 
   constructor() {
     this.stopwatch = new Stopwatch()
-    this.timeFormatter = new TimeFormatter()
     this.durationFormatter = new DurationFormatter()
     this.timestampFormatter = new TimestampFormatter()
     this.ui = new StopwatchUI()
@@ -107,10 +104,6 @@ export class StopwatchApp {
 
   private updateAllDisplays(): void {
     const elapsed = this.stopwatch.getElapsed()
-
-    // Main timer display
-    const formattedTime = this.timeFormatter.format(elapsed)
-    this.ui.updateDisplay(formattedTime)
 
     // Stopwatch duration (active time only)
     const stopwatchDuration = this.durationFormatter.format(elapsed)
