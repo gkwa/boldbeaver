@@ -26,119 +26,45 @@ export class StopwatchUI {
     `
 
     this.cacheElements()
-    this.setupDynamicSizing()
-
-    window.addEventListener("resize", () => this.setupDynamicSizing())
+    this.setupResponsiveSizing()
   }
 
-  private setupDynamicSizing(): void {
-    const elements = [
-      this.stopwatchDurationDisplay,
-      this.sessionDurationDisplay,
-      this.currentTimestampDisplay,
-      this.startTimestampDisplay,
-      this.legendDisplay,
-    ]
-    if (elements.some((el) => !el)) return
+  private setupResponsiveSizing(): void {
+    if (
+      !this.stopwatchDurationDisplay ||
+      !this.sessionDurationDisplay ||
+      !this.currentTimestampDisplay ||
+      !this.startTimestampDisplay ||
+      !this.legendDisplay
+    )
+      return
 
-    const viewportHeight = window.innerHeight
-    const viewportWidth = window.innerWidth - 20
+    // Use viewport-based sizing like the working HTML version
+    this.stopwatchDurationDisplay.style.fontSize = "8vw"
+    this.sessionDurationDisplay.style.fontSize = "6vw"
+    this.legendDisplay.style.fontSize = "3vw"
+    this.currentTimestampDisplay.style.fontSize = "2.5vw"
+    this.startTimestampDisplay.style.fontSize = "2vw"
 
-    const showingStartTime = this.startTimestampDisplay!.style.display !== "none"
-    const showingSessionTime = this.sessionDurationDisplay!.style.display !== "none"
-
-    const controlsSpace = viewportHeight * 0.15
-    const availableHeight = viewportHeight - controlsSpace
-
-    // Calculate space allocation
-    const currentTimestampHeight = availableHeight * 0.1
-    const startTimestampHeight = showingStartTime ? availableHeight * 0.06 : 0
-    const legendHeight = availableHeight * 0.08
-
-    let timerSpace = availableHeight - currentTimestampHeight - startTimestampHeight - legendHeight
-
-    if (showingSessionTime) {
-      // Split timer space between active and session
-      const activeHeight = timerSpace * 0.5
-      const sessionHeight = timerSpace * 0.5
-
-      const activeFontSize = this.fitTextToWidth(
-        this.stopwatchDurationDisplay!,
-        Math.max(activeHeight, 30),
-        viewportWidth,
-        "99d23h59m",
-      )
-      const sessionFontSize = this.fitTextToWidth(
-        this.sessionDurationDisplay!,
-        Math.max(sessionHeight, 30),
-        viewportWidth,
-        "99d23h59m",
-      )
-
-      this.stopwatchDurationDisplay!.style.fontSize = `${activeFontSize}px`
-      this.sessionDurationDisplay!.style.fontSize = `${sessionFontSize}px`
-    } else {
-      // Use full timer space for active only
-      const activeFontSize = this.fitTextToWidth(
-        this.stopwatchDurationDisplay!,
-        Math.max(timerSpace, 50),
-        viewportWidth,
-        "99d23h59m",
-      )
-      this.stopwatchDurationDisplay!.style.fontSize = `${activeFontSize}px`
+    // Add responsive breakpoint for very small screens
+    const addResponsiveStyles = () => {
+      if (window.innerWidth <= 320) {
+        this.stopwatchDurationDisplay!.style.fontSize = "12vw"
+        this.sessionDurationDisplay!.style.fontSize = "8vw"
+        this.legendDisplay!.style.fontSize = "4vw"
+        this.currentTimestampDisplay!.style.fontSize = "3.5vw"
+        this.startTimestampDisplay!.style.fontSize = "3vw"
+      } else {
+        this.stopwatchDurationDisplay!.style.fontSize = "8vw"
+        this.sessionDurationDisplay!.style.fontSize = "6vw"
+        this.legendDisplay!.style.fontSize = "3vw"
+        this.currentTimestampDisplay!.style.fontSize = "2.5vw"
+        this.startTimestampDisplay!.style.fontSize = "2vw"
+      }
     }
 
-    // Set other element sizes
-    const currentTimestampFontSize = this.fitTextToWidth(
-      this.currentTimestampDisplay!,
-      Math.max(currentTimestampHeight, 12),
-      viewportWidth,
-      "Sun, Aug 31, 2025 08:30:28 (08:30:28 AM)",
-    )
-    this.currentTimestampDisplay!.style.fontSize = `${currentTimestampFontSize}px`
-
-    const legendFontSize = this.fitTextToWidth(
-      this.legendDisplay!,
-      Math.max(legendHeight, 10),
-      viewportWidth,
-      "🟢 Active • 🟡 Session",
-    )
-    this.legendDisplay!.style.fontSize = `${legendFontSize}px`
-
-    if (!showingStartTime) return
-
-    const startTimestampFontSize = this.fitTextToWidth(
-      this.startTimestampDisplay!,
-      Math.max(startTimestampHeight, 10),
-      viewportWidth,
-      "Started: Sun, Aug 31, 2025 08:30:28 (08:30:28 AM)",
-    )
-    this.startTimestampDisplay!.style.fontSize = `${startTimestampFontSize}px`
-  }
-
-  private fitTextToWidth(
-    element: HTMLElement,
-    startSize: number,
-    maxWidth: number,
-    sampleText: string,
-  ): number {
-    const tempElement = element.cloneNode(true) as HTMLElement
-    tempElement.style.visibility = "hidden"
-    tempElement.style.position = "absolute"
-    tempElement.style.top = "-9999px"
-    tempElement.style.fontSize = `${startSize}px`
-    tempElement.textContent = sampleText
-
-    document.body.appendChild(tempElement)
-
-    let fontSize = startSize
-    while (tempElement.offsetWidth > maxWidth && fontSize > 8) {
-      fontSize -= 1
-      tempElement.style.fontSize = `${fontSize}px`
-    }
-
-    document.body.removeChild(tempElement)
-    return fontSize
+    addResponsiveStyles()
+    window.addEventListener("resize", addResponsiveStyles)
   }
 
   public updateToggleButton(isRunning: boolean): void {
@@ -147,11 +73,10 @@ export class StopwatchUI {
     if (isRunning) {
       this.toggleBtn.textContent = "STOP"
       this.toggleBtn.className = "btn btn-toggle btn-stop"
-      return
+    } else {
+      this.toggleBtn.textContent = "START"
+      this.toggleBtn.className = "btn btn-toggle btn-start"
     }
-
-    this.toggleBtn.textContent = "START"
-    this.toggleBtn.className = "btn btn-toggle btn-start"
   }
 
   public updateStopwatchDuration(duration: string): void {
@@ -161,10 +86,8 @@ export class StopwatchUI {
 
   public updateSessionDuration(duration: string, show: boolean): void {
     if (!this.sessionDurationDisplay) return
-
     this.sessionDurationDisplay.textContent = duration
     this.sessionDurationDisplay.style.display = show ? "flex" : "none"
-    this.setupDynamicSizing()
   }
 
   public updateCurrentTimestamp(timestamp: string): void {
@@ -174,22 +97,18 @@ export class StopwatchUI {
 
   public updateStartTimestamp(timestamp: string, show: boolean): void {
     if (!this.startTimestampDisplay) return
-
     this.startTimestampDisplay.textContent = `Started: ${timestamp}`
     this.startTimestampDisplay.style.display = show ? "flex" : "none"
-    this.setupDynamicSizing()
   }
 
   public updateKeepAwakeButton(enabled: boolean): void {
     if (!this.keepAwakeBtn) return
-
     this.keepAwakeBtn.textContent = enabled ? "Allow Sleep" : "Keep Awake"
     this.keepAwakeBtn.classList.toggle("active", enabled)
   }
 
   public disableKeepAwakeButton(): void {
     if (!this.keepAwakeBtn) return
-
     this.keepAwakeBtn.disabled = true
     this.keepAwakeBtn.textContent = "Keep Awake (Unsupported)"
     this.keepAwakeBtn.style.background = "#6b7280"
@@ -216,8 +135,8 @@ export class StopwatchUI {
     this.currentTimestampDisplay = document.querySelector(".current-timestamp-display")
     this.startTimestampDisplay = document.querySelector(".start-timestamp-display")
     this.legendDisplay = document.querySelector(".legend-display")
-    this.toggleBtn = document.querySelector(".btn-toggle")
-    this.resetBtn = document.querySelector(".btn-reset")
-    this.keepAwakeBtn = document.querySelector(".btn-keep-awake")
+    this.toggleBtn = document.querySelector(".btn-toggle") as HTMLButtonElement
+    this.resetBtn = document.querySelector(".btn-reset") as HTMLButtonElement
+    this.keepAwakeBtn = document.querySelector(".btn-keep-awake") as HTMLButtonElement
   }
 }

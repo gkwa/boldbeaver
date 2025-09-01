@@ -1,6 +1,7 @@
 import { Stopwatch } from "../domain/Stopwatch"
 import { DurationFormatter } from "../services/DurationFormatter"
 import { TimestampFormatter } from "../services/TimestampFormatter"
+import { URLParamParser } from "../services/URLParamParser"
 import { StopwatchUI } from "../ui/StopwatchUI"
 
 export class StopwatchApp {
@@ -12,10 +13,19 @@ export class StopwatchApp {
   private wakeLock: WakeLockSentinel | null = null
 
   constructor() {
-    this.stopwatch = new Stopwatch()
+    // Parse URL parameters for initial offset
+    const initialOffset = URLParamParser.parseStartOffset()
+
+    this.stopwatch = new Stopwatch(initialOffset)
     this.durationFormatter = new DurationFormatter()
     this.timestampFormatter = new TimestampFormatter()
     this.ui = new StopwatchUI()
+
+    // Log examples if offset was provided
+    if (initialOffset > 0) {
+      console.log(`Starting with offset: ${this.durationFormatter.format(initialOffset)}`)
+      console.log("Example URLs:", URLParamParser.getExampleUrls())
+    }
   }
 
   public init(): void {
