@@ -68,14 +68,16 @@ export class StopwatchApp {
     if (this.isKeepAwakeEnabled) {
       await this.requestWakeLock()
       this.ui.updateKeepAwakeButton(true)
-    } else {
-      await this.releaseWakeLock()
-      this.ui.updateKeepAwakeButton(false)
+      return
     }
+
+    await this.releaseWakeLock()
+    this.ui.updateKeepAwakeButton(false)
   }
 
   private async requestWakeLock(): Promise<void> {
     if (this.wakeLock) return
+
     try {
       this.wakeLock = await navigator.wakeLock.request("screen")
       this.wakeLock.addEventListener("release", () => {
@@ -85,15 +87,13 @@ export class StopwatchApp {
       console.error("Failed to acquire wake lock:", err)
       this.isKeepAwakeEnabled = false
       this.ui.updateKeepAwakeButton(false)
-      // Optionally alert user
     }
   }
 
   private async releaseWakeLock(): Promise<void> {
-    if (this.wakeLock) {
-      await this.wakeLock.release()
-      this.wakeLock = null
-    }
+    if (!this.wakeLock) return
+    await this.wakeLock.release()
+    this.wakeLock = null
   }
 
   private startUpdateLoop(): void {
@@ -117,18 +117,19 @@ export class StopwatchApp {
 
     // Session info (if started)
     const sessionStartTime = this.stopwatch.getSessionStartTime()
-    if (sessionStartTime && this.stopwatch.hasStarted()) {
-      // Show start timestamp
-      const startTimestamp = this.timestampFormatter.formatDate(sessionStartTime)
-      this.ui.updateStartTimestamp(startTimestamp, true)
-
-      // Calculate and show session duration (wall-clock time)
-      const sessionElapsed = Date.now() - sessionStartTime.getTime()
-      const sessionDuration = this.durationFormatter.format(sessionElapsed)
-      this.ui.updateSessionDuration(sessionDuration, true)
-    } else {
+    if (!sessionStartTime || !this.stopwatch.hasStarted()) {
       this.ui.updateStartTimestamp("", false)
       this.ui.updateSessionDuration("", false)
+      return
     }
+
+    // Show start timestamp
+    const startTimestamp = this.timestampFormatter.formatDate(sessionStartTime)
+    this.ui.updateStartTimestamp(startTimestamp, true)
+
+    // Calculate and show session duration (wall-clock time)
+    const sessionElapsed = Date.now() - sessionStartTime.getTime()
+    const sessionDuration = this.durationFormatter.format(sessionElapsed)
+    this.ui.updateSessionDuration(sessionDuration, true)
   }
 }

@@ -5,22 +5,22 @@ export class Stopwatch {
   private sessionStartTime: Date | null = null
 
   public start(): void {
-    if (!this.isRunning) {
-      this.startTime = performance.now()
-      this.isRunning = true
+    if (this.isRunning) return
 
-      // Capture the wall-clock start time
-      if (this.sessionStartTime === null) {
-        this.sessionStartTime = new Date()
-      }
+    this.startTime = performance.now()
+    this.isRunning = true
+
+    // Capture the wall-clock start time
+    if (this.sessionStartTime === null) {
+      this.sessionStartTime = new Date()
     }
   }
 
   public stop(): void {
-    if (this.isRunning) {
-      this.elapsedTime += performance.now() - this.startTime
-      this.isRunning = false
-    }
+    if (!this.isRunning) return
+
+    this.elapsedTime += performance.now() - this.startTime
+    this.isRunning = false
   }
 
   public reset(): void {

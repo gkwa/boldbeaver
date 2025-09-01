@@ -105,15 +105,15 @@ export class StopwatchUI {
     )
     this.legendDisplay!.style.fontSize = `${legendFontSize}px`
 
-    if (showingStartTime) {
-      const startTimestampFontSize = this.fitTextToWidth(
-        this.startTimestampDisplay!,
-        Math.max(startTimestampHeight, 10),
-        viewportWidth,
-        "Started: Sun, Aug 31, 2025 08:30:28 (08:30:28 AM)",
-      )
-      this.startTimestampDisplay!.style.fontSize = `${startTimestampFontSize}px`
-    }
+    if (!showingStartTime) return
+
+    const startTimestampFontSize = this.fitTextToWidth(
+      this.startTimestampDisplay!,
+      Math.max(startTimestampHeight, 10),
+      viewportWidth,
+      "Started: Sun, Aug 31, 2025 08:30:28 (08:30:28 AM)",
+    )
+    this.startTimestampDisplay!.style.fontSize = `${startTimestampFontSize}px`
   }
 
   private fitTextToWidth(
@@ -142,77 +142,74 @@ export class StopwatchUI {
   }
 
   public updateToggleButton(isRunning: boolean): void {
-    if (this.toggleBtn) {
-      if (isRunning) {
-        this.toggleBtn.textContent = "STOP"
-        this.toggleBtn.className = "btn btn-toggle btn-stop"
-      } else {
-        this.toggleBtn.textContent = "START"
-        this.toggleBtn.className = "btn btn-toggle btn-start"
-      }
+    if (!this.toggleBtn) return
+
+    if (isRunning) {
+      this.toggleBtn.textContent = "STOP"
+      this.toggleBtn.className = "btn btn-toggle btn-stop"
+      return
     }
+
+    this.toggleBtn.textContent = "START"
+    this.toggleBtn.className = "btn btn-toggle btn-start"
   }
 
   public updateStopwatchDuration(duration: string): void {
-    if (this.stopwatchDurationDisplay) {
-      this.stopwatchDurationDisplay.textContent = duration
-    }
+    if (!this.stopwatchDurationDisplay) return
+    this.stopwatchDurationDisplay.textContent = duration
   }
 
   public updateSessionDuration(duration: string, show: boolean): void {
-    if (this.sessionDurationDisplay) {
-      this.sessionDurationDisplay.textContent = duration
-      this.sessionDurationDisplay.style.display = show ? "flex" : "none"
-      this.setupDynamicSizing()
-    }
+    if (!this.sessionDurationDisplay) return
+
+    this.sessionDurationDisplay.textContent = duration
+    this.sessionDurationDisplay.style.display = show ? "flex" : "none"
+    this.setupDynamicSizing()
   }
 
   public updateCurrentTimestamp(timestamp: string): void {
-    if (this.currentTimestampDisplay) {
-      this.currentTimestampDisplay.textContent = timestamp
-    }
+    if (!this.currentTimestampDisplay) return
+    this.currentTimestampDisplay.textContent = timestamp
   }
 
   public updateStartTimestamp(timestamp: string, show: boolean): void {
-    if (this.startTimestampDisplay) {
-      this.startTimestampDisplay.textContent = `Started: ${timestamp}`
-      this.startTimestampDisplay.style.display = show ? "flex" : "none"
-      this.setupDynamicSizing()
-    }
+    if (!this.startTimestampDisplay) return
+
+    this.startTimestampDisplay.textContent = `Started: ${timestamp}`
+    this.startTimestampDisplay.style.display = show ? "flex" : "none"
+    this.setupDynamicSizing()
   }
 
   public updateKeepAwakeButton(enabled: boolean): void {
-    if (this.keepAwakeBtn) {
-      this.keepAwakeBtn.textContent = enabled ? "Allow Sleep" : "Keep Awake"
-      this.keepAwakeBtn.classList.toggle("active", enabled)
-    }
+    if (!this.keepAwakeBtn) return
+
+    this.keepAwakeBtn.textContent = enabled ? "Allow Sleep" : "Keep Awake"
+    this.keepAwakeBtn.classList.toggle("active", enabled)
   }
 
   public disableKeepAwakeButton(): void {
-    if (this.keepAwakeBtn) {
-      this.keepAwakeBtn.disabled = true
-      this.keepAwakeBtn.textContent = "Keep Awake (Unsupported)"
-      this.keepAwakeBtn.style.background = "#6b7280"
-    }
+    if (!this.keepAwakeBtn) return
+
+    this.keepAwakeBtn.disabled = true
+    this.keepAwakeBtn.textContent = "Keep Awake (Unsupported)"
+    this.keepAwakeBtn.style.background = "#6b7280"
   }
 
   public onToggle(callback: () => void): void {
-    if (this.toggleBtn) {
-      this.toggleBtn.addEventListener("click", callback)
-    }
+    if (!this.toggleBtn) return
+    this.toggleBtn.addEventListener("click", callback)
   }
 
   public onReset(callback: () => void): void {
-    if (this.resetBtn) {
-      this.resetBtn.addEventListener("click", callback)
-    }
+    if (!this.resetBtn) return
+    this.resetBtn.addEventListener("click", callback)
   }
 
   public onKeepAwake(callback: () => void): void {
-    if (this.keepAwakeBtn) {
-      this.keepAwakeBtn.addEventListener("click", callback)
-    }
+    if (!this.keepAwakeBtn) return
+    this.keepAwakeBtn.addEventListener("click", callback)
   }
+
   private cacheElements(): void {
     this.stopwatchDurationDisplay = document.querySelector(".stopwatch-duration-display")
     this.sessionDurationDisplay = document.querySelector(".session-duration-display")
