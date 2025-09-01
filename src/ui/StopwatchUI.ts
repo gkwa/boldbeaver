@@ -4,8 +4,7 @@ export class StopwatchUI {
   private stopwatchDurationDisplay: HTMLElement | null = null
   private sessionDurationDisplay: HTMLElement | null = null
   private legendDisplay: HTMLElement | null = null
-  private startBtn: HTMLButtonElement | null = null
-  private stopBtn: HTMLButtonElement | null = null
+  private toggleBtn: HTMLButtonElement | null = null
   private resetBtn: HTMLButtonElement | null = null
   private keepAwakeBtn: HTMLButtonElement | null = null
 
@@ -15,8 +14,7 @@ export class StopwatchUI {
 
     app.innerHTML = `
       <div class="controls">
-        <button class="btn btn-start">START</button>
-        <button class="btn btn-stop">STOP</button>
+        <button class="btn btn-toggle btn-start">START</button>
         <button class="btn btn-reset">RESET</button>
         <button class="btn btn-keep-awake">Keep Awake</button>
       </div>
@@ -143,6 +141,18 @@ export class StopwatchUI {
     return fontSize
   }
 
+  public updateToggleButton(isRunning: boolean): void {
+    if (this.toggleBtn) {
+      if (isRunning) {
+        this.toggleBtn.textContent = "STOP"
+        this.toggleBtn.className = "btn btn-toggle btn-stop"
+      } else {
+        this.toggleBtn.textContent = "START"
+        this.toggleBtn.className = "btn btn-toggle btn-start"
+      }
+    }
+  }
+
   public updateStopwatchDuration(duration: string): void {
     if (this.stopwatchDurationDisplay) {
       this.stopwatchDurationDisplay.textContent = duration
@@ -186,15 +196,9 @@ export class StopwatchUI {
     }
   }
 
-  public onStart(callback: () => void): void {
-    if (this.startBtn) {
-      this.startBtn.addEventListener("click", callback)
-    }
-  }
-
-  public onStop(callback: () => void): void {
-    if (this.stopBtn) {
-      this.stopBtn.addEventListener("click", callback)
+  public onToggle(callback: () => void): void {
+    if (this.toggleBtn) {
+      this.toggleBtn.addEventListener("click", callback)
     }
   }
 
@@ -215,8 +219,7 @@ export class StopwatchUI {
     this.currentTimestampDisplay = document.querySelector(".current-timestamp-display")
     this.startTimestampDisplay = document.querySelector(".start-timestamp-display")
     this.legendDisplay = document.querySelector(".legend-display")
-    this.startBtn = document.querySelector(".btn-start")
-    this.stopBtn = document.querySelector(".btn-stop")
+    this.toggleBtn = document.querySelector(".btn-toggle")
     this.resetBtn = document.querySelector(".btn-reset")
     this.keepAwakeBtn = document.querySelector(".btn-keep-awake")
   }

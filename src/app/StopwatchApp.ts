@@ -31,16 +31,18 @@ export class StopwatchApp {
   }
 
   private setupEventHandlers(): void {
-    this.ui.onStart(() => {
-      this.stopwatch.start()
-    })
-
-    this.ui.onStop(() => {
-      this.stopwatch.stop()
+    this.ui.onToggle(() => {
+      if (this.stopwatch.getIsRunning()) {
+        this.stopwatch.stop()
+      } else {
+        this.stopwatch.start()
+      }
+      this.ui.updateToggleButton(this.stopwatch.getIsRunning())
     })
 
     this.ui.onReset(() => {
       this.stopwatch.reset()
+      this.ui.updateToggleButton(this.stopwatch.getIsRunning())
       this.updateAllDisplays()
     })
 
